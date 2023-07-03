@@ -5,5 +5,7 @@ services:
     build: .
     image: transcritor_audio:latest
     container_name: transcritor_audio
+    environment:
+      STREAMLIT_SERVER_PORT: 8080
     ports:
-      - 3000:3000
+      - 8080:8080
