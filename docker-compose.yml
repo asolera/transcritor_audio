@@ -6,4 +6,4 @@ services:
     image: transcritor_audio:latest
     container_name: transcritor_audio
     ports:
-      - 3000:8501
+      - 3000:3000
