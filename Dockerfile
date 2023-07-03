@@ -9,7 +9,6 @@ RUN apt update -y && apt install \
   libportaudio2 \
   libportaudiocpp0 \
   portaudio19-dev \
-  portaudio-dev \
 	gcc \
 	g++ \
   ffmpeg -y
