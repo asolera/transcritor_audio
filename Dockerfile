@@ -2,16 +2,7 @@ FROM python:3.9-slim-buster
 
 WORKDIR /app
 
-RUN apt update -y && apt install \
-  libasound2 \
-  libssl-dev \
-  libasound-dev \
-  libportaudio2 \
-  libportaudiocpp0 \
-  portaudio19-dev \
-	gcc \
-	g++ \
-  ffmpeg -y
+RUN apt update -y && apt install ffmpeg -y
 
 COPY requirements.txt .
 

@@ -1,61 +1,35 @@
+from audiorecorder import audiorecorder
 import streamlit as st
-import pyaudio
-import wave
+import time
 import whisper
 
 LANGUAGE = 'pt'
 
-def record_audio(duration):
-    chunk = 1024
-    sample_format = pyaudio.paInt16
-    channels = 1  # Alterado para 1 canal (mono)
-    fs = 44100
-    filename = "recording.wav"
+MODELOS = ["tiny", "base", "small", "medium"]
 
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=sample_format,
-                    channels=channels,
-                    rate=fs,
-                    frames_per_buffer=chunk,
-                    input=True)
-
-    frames = []
-
-    st.text("Gravando áudio...")
-    for _ in range(0, int(fs / chunk * duration)):
-        data = stream.read(chunk)
-        frames.append(data)
-
-    st.text("Gravação concluída.")
-
-    stream.stop_stream()
-    stream.close()
-
-    p.terminate()
-
-    wf = wave.open(filename, "wb")
-    wf.setnchannels(channels)
-    wf.setsampwidth(p.get_sample_size(sample_format))
-    wf.setframerate(fs)
-    wf.writeframes(b"".join(frames))
-    wf.close()
-
-    return filename
-
-
-def transcrever_audio(filename):
-    model = whisper.load_model("small")
+def transcrever_audio(filename, modelo):
+    holder = st.markdown(f"Transcrevendo áudio - modelo **{modelo}**...")
+    model = whisper.load_model(modelo)
+    start_time = time.time()
     result = model.transcribe(filename, fp16=False, language=LANGUAGE)
+    end_time = time.time()
     transcricao = result["text"]
-    st.header("Transcrição do áudio:")
-    st.text(transcricao)
+    st.markdown(f"### Transcrição do áudio - modelo \"{modelo}\":")
+    st.code(transcricao)
+    elapsed_time = end_time - start_time
+    st.info(f"Tempo decorrido: {elapsed_time:.2f} segundos")
+    holder.empty()
 
 st.title("Transcritor de áudio")
 
-duration = st.slider("Duração da gravação (em segundos)", 1, 10, 3)
-if st.button("Gravar"):
-    filename = record_audio(duration)
+audio = audiorecorder("Clique para iniciar a gravação", "Gravando... (clique novamente para encerrar)")
+if len(audio) > 0:
+    filename = "audio.mp3"
+    st.audio(audio.tobytes())
+    wav_file = open(filename, "wb")
+    wav_file.write(audio.tobytes())
     st.success(f"Áudio gravado: {filename}")
-    st.text("Transcrevendo áudio...")
-    transcrever_audio(filename)
+    for modelo in MODELOS:
+        transcrever_audio(filename, modelo)
+    st.info('Script encerrado.')
+    
